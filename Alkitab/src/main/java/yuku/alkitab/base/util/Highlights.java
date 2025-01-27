@@ -1,31 +1,23 @@
 package yuku.alkitab.base.util;
 
-import android.util.Log;
+import androidx.annotation.Keep;
 import com.google.gson.JsonSyntaxException;
 import yuku.alkitab.base.App;
 
 public class Highlights {
 	static final String TAG = Highlights.class.getSimpleName();
 
-	final static ThreadLocal<Info> tmpInfo = new ThreadLocal<Info>() {
-		@Override
-		protected Info initialValue() {
-			return new Info();
-		}
-	};
+	final static ThreadLocal<Info> tmpInfo = ThreadLocal.withInitial(() -> new Info());
 
-	final static ThreadLocal<Info.Partial> tmpPartial = new ThreadLocal<Info.Partial>() {
-		@Override
-		protected Info.Partial initialValue() {
-			return new Info.Partial();
-		}
-	};
+	final static ThreadLocal<Info.Partial> tmpPartial = ThreadLocal.withInitial(() -> new Info.Partial());
 
+	@Keep
 	public static class Info {
 		/** rgb only, without the alpha */
 		public int colorRgb;
 		public Partial partial;
 
+		@Keep
 		public static class Partial {
 			/** hashCode of the plain text (not with formatting) */
 			public int hashCode;

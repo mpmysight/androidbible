@@ -1,10 +1,19 @@
 # Android Studio
+!/.idea/
 .gradle
 /local.properties
 /.idea/workspace.xml
 /.idea/tasks.xml
 /.idea/artifacts
+/.idea/caches
+/.idea/assetWizardSettings.xml
+/.idea/modules.xml
+/.idea/jarRepositories.xml
+/.idea/deploymentTargetDropDown.xml
+/.idea/deploymentTargetSelector.xml
+/.idea/androidTestResultsUserPreferences.xml
 /build
+local.properties
 
 # according to https://intellij-support.jetbrains.com/entries/23393067
 /.idea/libraries/*.xml
@@ -16,5 +25,5 @@
 # Mac
 .DS_Store
 
-# Fabric: https://docs.fabric.io/android/fabric/settings/working-in-teams.html
-fabric.properties
+# Do not expose this so others do not use the same project
+google-services.json

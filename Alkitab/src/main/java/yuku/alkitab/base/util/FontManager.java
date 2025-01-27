@@ -3,9 +3,8 @@ package yuku.alkitab.base.util;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Environment;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.util.Log;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import yuku.alkitab.base.App;
 
 import java.io.File;
@@ -14,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class FontManager {
-	public static final String TAG = FontManager.class.getSimpleName();
+	static final String TAG = FontManager.class.getSimpleName();
 
 	public static class FontEntry {
 		public String name;

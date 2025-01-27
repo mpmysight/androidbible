@@ -1,13 +1,15 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '25.0.1'
+    namespace 'yuku.alkitab.imagesharer'
+
+    compileSdkVersion 33
 
     defaultConfig {
         applicationId "yuku.alkitab.imagesharer"
-        minSdkVersion 14
-        targetSdkVersion 25
+        minSdkVersion 26
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0"
     }
@@ -23,6 +25,5 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile "com.android.support:appcompat-v7:25.1.1"
+    implementation "androidx.appcompat:appcompat:1.6.1"
 }

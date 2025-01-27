@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:id="@+id/root"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="fill_parent"
-	android:layout_height="fill_parent"
+	android:id="@+id/root"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
 	android:orientation="vertical">
 
-	<android.support.v7.widget.Toolbar
+	<androidx.appcompat.widget.Toolbar
 		android:id="@+id/toolbar"
 		android:layout_width="match_parent"
 		android:layout_height="?attr/actionBarSize"
@@ -20,7 +20,6 @@
 			android:layout_height="match_parent"
 			android:layout_gravity="end"
 			android:layout_marginEnd="16dp"
-			android:layout_marginRight="16dp"
 			android:gravity="center"
 			android:textStyle="bold"
 			tools:text="VERSNM" />
@@ -34,18 +33,53 @@
 			android:text="@string/search_version_select_label"
 			android:textAppearance="?android:textAppearanceSmall" />
 
-	</android.support.v7.widget.Toolbar>
+	</androidx.appcompat.widget.Toolbar>
 
-	<android.support.v7.widget.SearchView
-		android:id="@+id/searchView"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		app:iconifiedByDefault="false" />
+	<FrameLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content">
+
+		<androidx.appcompat.widget.SearchView
+			android:id="@+id/searchView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginEnd="40dp"
+			app:iconifiedByDefault="false"
+			app:searchHintIcon="@null"
+			app:searchIcon="@null" />
+
+		<FrameLayout
+			android:layout_width="48dp"
+			android:layout_height="48dp"
+			android:layout_gravity="end|center_vertical">
+
+			<com.google.android.material.progressindicator.CircularProgressIndicator
+				android:id="@+id/progressbar"
+				style="@style/Widget.MaterialComponents.CircularProgressIndicator.Small"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:indeterminate="true"
+				android:visibility="gone"
+				app:trackColor="@color/accent"
+				tools:visibility="visible" />
+
+			<ImageButton
+				android:id="@+id/bSearch"
+				android:layout_width="48dp"
+				android:layout_height="48dp"
+				android:background="?selectableItemBackgroundBorderless"
+				android:contentDescription="@string/search"
+				android:src="@drawable/ic_menu_search" />
+
+		</FrameLayout>
+
+	</FrameLayout>
 
 	<include
 		android:id="@+id/panelFilter"
 		layout="@layout/search_panel_filter"
-		android:layout_width="fill_parent"
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content" />
 
 	<LinearLayout
@@ -54,22 +88,23 @@
 		android:layout_weight="1"
 		android:orientation="vertical">
 
-		<ListView
+		<androidx.recyclerview.widget.RecyclerView
 			android:id="@+id/lsSearchResults"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:fastScrollEnabled="true" />
+			android:visibility="gone"
+			app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
 		<TextView
 			android:id="@+id/tSearchTips"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:gravity="center"
-			android:paddingEnd="16dp"
 			android:paddingStart="16dp"
+			android:paddingEnd="16dp"
 			android:text="@string/search_syntax_tips"
 			android:textSize="16sp"
-			android:visibility="gone" />
+			android:visibility="visible" />
 
 	</LinearLayout>
 

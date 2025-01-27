@@ -3,8 +3,8 @@ package yuku.alkitab.base.sync;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
 import android.text.SpannableStringBuilder;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.LeadingMarginSpan;
@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
-import yuku.afw.V;
 import yuku.afw.widget.EasyAdapter;
 import yuku.alkitab.base.App;
 import yuku.alkitab.base.S;
@@ -31,25 +30,20 @@ public class SyncLogActivity extends BaseActivity {
 	ListView lsLog;
 	LogAdapter adapter;
 
-	static final ThreadLocal<SimpleDateFormat> dateFormat = new ThreadLocal<SimpleDateFormat>() {
-		@Override
-		protected SimpleDateFormat initialValue() {
-			return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
-		}
-	};
+	static final ThreadLocal<SimpleDateFormat> dateFormat = ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US));
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_sync_log);
 
-		final Toolbar toolbar = V.get(this, R.id.toolbar);
+		final Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 		final ActionBar ab = getSupportActionBar();
 		assert ab != null;
 		ab.setDisplayHomeAsUpEnabled(true);
 
-		lsLog = V.get(this, R.id.lsLog);
+		lsLog = findViewById(R.id.lsLog);
 		lsLog.setAdapter(adapter = new LogAdapter());
 	}
 

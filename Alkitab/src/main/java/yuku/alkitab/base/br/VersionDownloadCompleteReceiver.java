@@ -3,13 +3,17 @@ package yuku.alkitab.base.br;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.util.AtomicFile;
 import android.text.TextUtils;
 import android.widget.Toast;
+import androidx.core.util.AtomicFile;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Map;
 import yuku.alkitab.base.App;
 import yuku.alkitab.base.S;
 import yuku.alkitab.base.ac.AlertDialogActivity;
-import yuku.alkitab.base.ac.VersionsActivity;
 import yuku.alkitab.base.model.MVersionDb;
 import yuku.alkitab.base.storage.YesReaderFactory;
 import yuku.alkitab.base.util.AddonManager;
@@ -20,12 +24,7 @@ import yuku.alkitab.base.util.Foreground;
 import yuku.alkitab.debug.R;
 import yuku.alkitab.io.BibleReader;
 import yuku.alkitab.io.OptionalGzipInputStream;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Map;
+import yuku.alkitab.versionmanager.VersionListFragment;
 
 public class VersionDownloadCompleteReceiver {
 	private static final String TAG = VersionDownloadCompleteReceiver.class.getSimpleName();
@@ -110,7 +109,7 @@ public class VersionDownloadCompleteReceiver {
 					AlertDialogActivity.createOkIntent(null, context.getString(R.string.version_download_saving_io_error))
 						.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 				));
-				App.getLbm().sendBroadcast(new Intent(VersionsActivity.VersionListFragment.ACTION_RELOAD));
+				App.getLbm().sendBroadcast(new Intent(VersionListFragment.ACTION_RELOAD));
 				return;
 			} finally {
 				DownloadMapper.instance.remove(id);
@@ -125,7 +124,7 @@ public class VersionDownloadCompleteReceiver {
 					AlertDialogActivity.createOkIntent(null, context.getString(R.string.version_download_corrupted_file))
 						.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 				));
-				App.getLbm().sendBroadcast(new Intent(VersionsActivity.VersionListFragment.ACTION_RELOAD));
+				App.getLbm().sendBroadcast(new Intent(VersionListFragment.ACTION_RELOAD));
 				return;
 			}
 
@@ -151,16 +150,9 @@ public class VersionDownloadCompleteReceiver {
 
 			Foreground.run(() -> {
 				Toast.makeText(App.context, TextUtils.expandTemplate(context.getText(R.string.version_download_complete), mvDb.longName), Toast.LENGTH_LONG).show();
-
-				if ("ta".equals(mvDb.locale) || "te".equals(mvDb.locale) || "my".equals(mvDb.locale) || "el".equals(mvDb.locale)) {
-					context.startActivity(
-						AlertDialogActivity.createOkIntent(null, context.getString(R.string.version_download_need_fonts))
-							.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-					);
-				}
 			});
 
-			App.getLbm().sendBroadcast(new Intent(VersionsActivity.VersionListFragment.ACTION_RELOAD));
+			App.getLbm().sendBroadcast(new Intent(VersionListFragment.ACTION_RELOAD));
 		});
 	}
 }

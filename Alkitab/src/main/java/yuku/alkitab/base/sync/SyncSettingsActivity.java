@@ -5,16 +5,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.app.ActionBar;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.answers.Answers;
-import yuku.afw.V;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+import kotlin.Unit;
 import yuku.afw.storage.Preferences;
 import yuku.alkitab.base.App;
 import yuku.alkitab.base.S;
@@ -22,6 +21,7 @@ import yuku.alkitab.base.ac.base.BaseActivity;
 import yuku.alkitab.base.model.SyncShadow;
 import yuku.alkitab.base.storage.Prefkey;
 import yuku.alkitab.base.util.Sqlitil;
+import yuku.alkitab.base.widget.MaterialDialogJavaHelper;
 import yuku.alkitab.debug.R;
 
 import java.text.DateFormat;
@@ -37,7 +37,7 @@ public class SyncSettingsActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_sync_settings);
 
-		final Toolbar toolbar = V.get(this, R.id.toolbar);
+		final Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 		final ActionBar ab = getSupportActionBar();
 		assert ab != null;
@@ -59,19 +59,9 @@ public class SyncSettingsActivity extends BaseActivity {
 			}
 		};
 
-		static final ThreadLocal<DateFormat> lastSyncDateFormat = new ThreadLocal<DateFormat>() {
-			@Override
-			protected DateFormat initialValue() {
-				return android.text.format.DateFormat.getDateFormat(App.context);
-			}
-		};
+		static final ThreadLocal<DateFormat> lastSyncDateFormat = ThreadLocal.withInitial(() -> android.text.format.DateFormat.getDateFormat(App.context));
 
-		static final ThreadLocal<DateFormat> lastSyncTimeFormat = new ThreadLocal<DateFormat>() {
-			@Override
-			protected DateFormat initialValue() {
-				return android.text.format.DateFormat.getTimeFormat(App.context);
-			}
-		};
+		static final ThreadLocal<DateFormat> lastSyncTimeFormat = ThreadLocal.withInitial(() -> android.text.format.DateFormat.getTimeFormat(App.context));
 
 		@Override
 		public void onCreatePreferences(final Bundle savedInstanceState, final String rootKey) {
@@ -97,7 +87,6 @@ public class SyncSettingsActivity extends BaseActivity {
 		}
 
 
-		@SuppressWarnings("deprecation")
 		void updateDisplay() {
 			final String syncAccountName = Preferences.getString(R.string.pref_syncAccountName_key);
 			pref_syncAccountName.setSummary(syncAccountName != null ? syncAccountName : getString(R.string.sync_account_not_selected));
@@ -116,7 +105,7 @@ public class SyncSettingsActivity extends BaseActivity {
 							pref.setSummary(getString(R.string.sync_sync_set_pref_summary_never));
 						} else {
 							final Date date = Sqlitil.toDate(time);
-							pref.setSummary(getString(R.string.sync_sync_set_pref_summary_last_synced, lastSyncDateFormat.get().format(date), lastSyncTimeFormat.get().format(date), S.getDb().getRevnoFromSyncShadowBySyncSetName(syncSetName)));
+							pref.setSummary(getString(R.string.sync_sync_set_pref_summary_last_synced, lastSyncDateFormat.get().format(date), lastSyncTimeFormat.get().format(date), 	S.getDb().getRevnoFromSyncShadowBySyncSetName(syncSetName)));
 						}
 					}
 				} else {
@@ -132,10 +121,11 @@ public class SyncSettingsActivity extends BaseActivity {
 				startActivityForResult(SyncLoginActivity.createIntent(), REQCODE_login);
 
 			} else { // show logout instead
-				new MaterialDialog.Builder(getActivity())
-					.content(R.string.sync_logout_warning)
-					.positiveText(R.string.ok)
-					.onPositive((d, w) -> {
+				MaterialDialogJavaHelper.showOkDialog(
+					requireActivity(),
+					getString(R.string.sync_logout_warning),
+					getString(R.string.ok),
+					() -> {
 						SyncRecorder.log(SyncRecorder.EventKind.logout_pre, null, "accountName", syncAccountName);
 
 						Preferences.hold();
@@ -153,12 +143,15 @@ public class SyncSettingsActivity extends BaseActivity {
 
 						SyncRecorder.log(SyncRecorder.EventKind.logout_post, null, "accountName", syncAccountName);
 
-						Crashlytics.setUserEmail(null);
+						FirebaseCrashlytics.getInstance().setUserId("");
+
+						SyncUtils.removeAllSyncAccounts();
 
 						updateDisplay();
-					})
-					.negativeText(R.string.cancel)
-					.show();
+						return Unit.INSTANCE;
+					},
+					getString(R.string.cancel)
+				);
 			}
 			return true;
 		};
@@ -205,13 +198,12 @@ public class SyncSettingsActivity extends BaseActivity {
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
 		final int itemId = item.getItemId();
-		switch (itemId) {
-			case R.id.menuSyncNow:
-				Sync.forceSyncNow();
-				return true;
-			case R.id.menuSyncLog:
-				startActivity(SyncLogActivity.createIntent());
-				return true;
+		if (itemId == R.id.menuSyncNow) {
+			Sync.forceSyncNow();
+			return true;
+		} else if (itemId == R.id.menuSyncLog) {
+			startActivity(SyncLogActivity.createIntent());
+			return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}

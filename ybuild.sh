@@ -14,7 +14,7 @@ MAIN_PROJECT_NAME=Alkitab
 THIS_SCRIPT_FILE=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)/`basename "${BASH_SOURCE[0]}"`
 THIS_SCRIPT_DIR=`dirname $THIS_SCRIPT_FILE`
 
-set -e  # Exit the script as soon as one of the commands failed
+set -e  # Exit the script as soon as one of the commandsfailed
 
 if [ "$ALKITAB_PROPRIETARY_DIR" == "" ] ; then
 	echo 'ALKITAB_PROPRIETARY_DIR not defined'
@@ -58,24 +58,7 @@ get_attr() {
 write_last_commit_hash() {
 	FILE="$1"
 	echo 'Setting last commit hash: '$LAST_COMMIT_HASH' to '$FILE
-	sed -i '' "s/0000000/$LAST_COMMIT_HASH/g" "$FILE"
-}
-
-overlay() {
-	P_SRC="$1"
-	P_DST="$2"
-
-	SRC="$THIS_SCRIPT_DIR/ybuild/overlay/$PKGDIST/$P_SRC"
-	DST="$BUILD_MAIN_PROJECT_DIR/src/main/$P_DST"
-
-	echo "Overlaying $P_DST with $P_SRC..."
-
-	if [ \! -e `dirname "$DST"` ] ; then
-		echo 'Making dir for overlay destination: ' "`dirname "$DST"`" '...'
-		mkdir -p "`dirname "$DST"`"
-	fi
-
-	cp "$SRC" "$DST" || read
+	sed -I '' "s/0000000/$LAST_COMMIT_HASH/g" "$FILE"
 }
 
 # START BUILD-SPECIFIC
@@ -137,10 +120,10 @@ pushd $BUILD_DIR/$SUPER_PROJECT_NAME
 		echo 'Removing dummy version on assets/internal...'
 		rm -rf assets/internal
 
-		TEXT_RAW="$ALKITAB_PROPRIETARY_DIR/overlay/$BUILD_PACKAGE_NAME/text_raw/"
+		TEXT_RAW="$ALKITAB_PROPRIETARY_DIR/overlay/$BUILD_PACKAGE_NAME/text_raw"
 		mkdir assets/internal
 		echo "Copying text overlay from $TEXT_RAW..."
-		if ! cp -R $TEXT_RAW assets/internal ; then
+		if ! cp -R $TEXT_RAW/* assets/internal ; then
 			echo 'Copy text overlay FAILED'
 			exit 1
 		fi
@@ -170,7 +153,7 @@ pushd $BUILD_DIR/$SUPER_PROJECT_NAME
 	echo 'Running gradlew from' `pwd`
 	./gradlew assemble${FLAVOR^}Release
 
-	FINAL_APK="$BUILD_MAIN_PROJECT_DIR/build/outputs/apk/$MAIN_PROJECT_NAME-$FLAVOR-release.apk"
+	FINAL_APK="$BUILD_MAIN_PROJECT_DIR/build/outputs/apk/$FLAVOR/release/$MAIN_PROJECT_NAME-$FLAVOR-release.apk"
 
 	if [ \! -r "$FINAL_APK" ] ; then
 		echo "$FINAL_APK" 'not found.'

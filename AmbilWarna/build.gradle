@@ -1,33 +1,32 @@
 apply plugin: 'com.android.library'
-
-apply plugin: 'me.tatarka.retrolambda'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
     }
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    lintOptions {
+    namespace 'yuku.ambilwarna'
+    lint {
         abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile "com.afollestad.material-dialogs:core:$materialDialogsVersion"
-    compile "com.android.support:preference-v7:$supportLibVersion"
+    implementation "com.afollestad.material-dialogs:core:$materialDialogsVersion"
+    implementation "androidx.preference:preference:$androidxPreferenceVersion"
 }

@@ -2,22 +2,18 @@ package yuku.alkitab.base.widget;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.support.v4.view.MotionEventCompat;
 import android.text.Layout;
 import android.text.Spanned;
 import android.text.style.ClickableSpan;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
-import android.widget.TextView;
-import yuku.alkitab.base.util.AppLog;
-import yuku.alkitab.debug.BuildConfig;
-
+import androidx.appcompat.widget.AppCompatTextView;
+import androidx.core.view.MotionEventCompat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VerseTextView extends TextView {
-	public static final String TAG = VerseTextView.class.getSimpleName();
+public class VerseTextView extends AppCompatTextView {
+	static final String TAG = VerseTextView.class.getSimpleName();
 
 	static class SpanEntry {
 		public Rect rect = new Rect();
@@ -29,12 +25,7 @@ public class VerseTextView extends TextView {
 		}
 	}
 
-	public static ThreadLocal<List<SpanEntry>> spanEntriesBuffer = new ThreadLocal<List<SpanEntry>>() {
-		@Override
-		protected List<SpanEntry> initialValue() {
-			return new ArrayList<>(8);
-		}
-	};
+	public static final ThreadLocal<List<SpanEntry>> spanEntriesBuffer = ThreadLocal.withInitial(() -> new ArrayList<>(8));
 
 	public VerseTextView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -101,17 +92,6 @@ public class VerseTextView extends TextView {
 			}
 		}
 
-		if (BuildConfig.DEBUG) {
-			AppLog.d(TAG, "----------");
-			AppLog.d(TAG, "touchX=" + touchX);
-			AppLog.d(TAG, "touchY=" + touchY);
-
-			for (int i = 0; i < spanEntries_count; i++) {
-				final SpanEntry e = spanEntries.get(i);
-				AppLog.d(TAG, "SpanEntry " + i + " at " + e.rect.toString() + ": span " + e.span + " '" + buffer.subSequence(buffer.getSpanStart(e.span), buffer.getSpanEnd(e.span)) + "'");
-			}
-		}
-
 		if (spanEntries_count == 0) return false;
 
 		final float density = getResources().getDisplayMetrics().density;
@@ -165,11 +145,6 @@ public class VerseTextView extends TextView {
 		for (int i = 0; i < spanEntries_count; i++) {
 			final SpanEntry spanEntry = spanEntries.get(i);
 			spanEntry.clear(); // don't keep any references to span!
-		}
-
-		if (BuildConfig.DEBUG) {
-			final double dist = Math.sqrt(bestDistanceSquared);
-			AppLog.d(TAG, "Best span is: " + bestSpan + " with distance " + dist + " (" + (dist / density) + "dp)");
 		}
 
 		if (bestSpan != null) {

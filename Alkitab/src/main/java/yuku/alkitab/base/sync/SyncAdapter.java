@@ -7,11 +7,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.Pair;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 import okhttp3.Call;
 import okhttp3.FormBody;
 import okhttp3.MultipartBody;
@@ -21,24 +28,17 @@ import yuku.afw.storage.Preferences;
 import yuku.alkitab.base.App;
 import yuku.alkitab.base.IsiActivity;
 import yuku.alkitab.base.S;
-import yuku.alkitab.base.U;
 import yuku.alkitab.base.ac.MarkerListActivity;
 import yuku.alkitab.base.ac.MarkersActivity;
 import yuku.alkitab.base.ac.ReadingPlanActivity;
+import yuku.alkitab.base.connection.Connections;
 import yuku.alkitab.base.model.SyncShadow;
 import yuku.alkitab.base.storage.Prefkey;
 import yuku.alkitab.base.util.AppLog;
 import yuku.alkitab.base.util.History;
+import yuku.alkitab.base.util.HistorySyncUtil;
+import yuku.alkitab.base.util.InstallationUtil;
 import yuku.alkitab.base.util.Sqlitil;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
 
 /**
  * Handle the transfer of data between a server and an
@@ -175,13 +175,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		AppLog.d(TAG, "Sync result: " + syncResult + " hasSoftError=" + syncResult.hasSoftError() + " hasHardError=" + syncResult.hasHardError() + " ioex=" + syncResult.stats.numIoExceptions);
 	}
 
-	public static Set<String> getRunningSyncs() {
-		final Set<String> res = new LinkedHashSet<>();
-		synchronized (syncSetsRunning) {
-			res.addAll(syncSetsRunning);
-		}
-		return res;
-	}
+    public static Set<String> getRunningSyncs() {
+        synchronized (syncSetsRunning) {
+            return new LinkedHashSet<>(syncSetsRunning);
+        }
+    }
 
 	/** Based on operations in append_delta, fill in SyncStats */
 	static <C> void fillInStatsFromAppendDelta(final Sync.Delta<C> append_delta, final SyncResult sr) {
@@ -203,13 +201,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	/**
 	 * If the client state's delta is too big, we remove some of the changes, so only some changes are transmitted to the server,
 	 * and the server will not time out anymore.
-	 *
-	 * The selection of the changes follow these rules:
-	 * - all operations with opkind {@link yuku.alkitab.base.sync.Sync.Opkind#mod} and {@link yuku.alkitab.base.sync.Sync.Opkind#del}
-	 *   must be included in the selection
-	 * - if the number of operations are still less than a certain threshold, operations with opkind
-	 *   {@link yuku.alkitab.base.sync.Sync.Opkind#add} are also included until the certain threshold is reached.
-	 *
+	 * <p>
 	 * WARNING: If you are using partial sync by this method, do not create sync shadow from the current state, but you must
 	 * create it from an existing sync shadow by applying the client delta AND the append delta (given from the server).
 	 * Also, the current state must be updated using the append delta from the server.
@@ -227,22 +219,13 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 		final List<Sync.Operation<C>> dst = new ArrayList<>();
 
-		// insert all mod and del operations
-		for (final Sync.Operation<C> o : src) {
-			if (o.opkind == Sync.Opkind.mod || o.opkind == Sync.Opkind.del) {
-				dst.add(o);
-			}
-		}
-
-		// if we are still ok, add operations too
+		// Add operations until we reach the threshold
 		for (final Sync.Operation<C> o : src) {
 			if (dst.size() >= PARTIAL_SYNC_THRESHOLD) {
 				break;
 			}
 
-			if (o.opkind == Sync.Opkind.add) {
-				dst.add(o);
-			}
+			dst.add(o);
 		}
 
 		SyncRecorder.log(SyncRecorder.EventKind.partial_sync_info, syncSetName, "client_delta_operations_size_original", src.size(), "client_delta_operations_size_chopped", dst.size());
@@ -281,11 +264,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			.setType(MultipartBody.FORM)
 			.addFormDataPart("simpleToken", simpleToken)
 			.addFormDataPart("syncSetName", syncSetName)
-			.addFormDataPart("installation_id", U.getInstallationId())
+			.addFormDataPart("installation_id", InstallationUtil.getInstallationId())
 			.addFormDataPart("clientState", App.getDefaultGson().toJson(clientState))
 			.build();
 
-		final Call call = App.getLongTimeoutOkHttpClient().newCall(
+		final Call call = Connections.getLongTimeoutOkHttpClient().newCall(
 			new Request.Builder()
 				.url(serverPrefix + "sync/api/sync")
 				.post(requestBody)
@@ -293,12 +276,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		);
 
 
-		AppLog.d(TAG, "@@syncMabel step 30: doing actual http request in this thread (" + Thread.currentThread().getId() + ":" + Thread.currentThread().toString() + ")");
+		AppLog.d(TAG, "@@syncMabel step 30: doing actual http request in this thread (" + Thread.currentThread().getId() + ":" + Thread.currentThread() + ")");
 		try {
 			// arbritrary amount of time may pass on the next line. It is possible for the current data to be modified during this operation.
 			SyncRecorder.log(SyncRecorder.EventKind.sync_to_server_pre, syncSetName, "serverPrefix", Sync.getEffectiveServerPrefix());
 			final long startTime = System.currentTimeMillis();
-			final String response_s = U.inputStreamUtf8ToString(call.execute().body().byteStream());
+			final String response_s = call.execute().body().string();
 			AppLog.d(TAG, "@@syncMabel server response string: " + response_s);
 			final Sync.SyncResponseJson<Sync_Mabel.Content> response = App.getDefaultGson().fromJson(response_s, new TypeToken<Sync.SyncResponseJson<Sync_Mabel.Content>>() {}.getType());
 			SyncRecorder.log(SyncRecorder.EventKind.sync_to_server_post_response_ok, syncSetName, "duration_ms", System.currentTimeMillis() - startTime);
@@ -382,11 +365,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		final RequestBody requestBody = new FormBody.Builder()
 			.add("simpleToken", simpleToken)
 			.add("syncSetName", syncSetName)
-			.add("installation_id", U.getInstallationId())
+			.add("installation_id", InstallationUtil.getInstallationId())
 			.add("clientState", App.getDefaultGson().toJson(clientState))
 			.build();
 
-		final Call call = App.getLongTimeoutOkHttpClient().newCall(
+		final Call call = Connections.getLongTimeoutOkHttpClient().newCall(
 			new Request.Builder()
 				.url(serverPrefix + "sync/api/sync")
 				.post(requestBody)
@@ -394,12 +377,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		);
 
 
-		AppLog.d(TAG, "@@syncHistory step 30: doing actual http request in this thread (" + Thread.currentThread().getId() + ":" + Thread.currentThread().toString() + ")");
+		AppLog.d(TAG, "@@syncHistory step 30: doing actual http request in this thread (" + Thread.currentThread().getId() + ":" + Thread.currentThread() + ")");
 		try {
 			// arbritrary amount of time may pass on the next line. It is possible for the current data to be modified during this operation.
 			SyncRecorder.log(SyncRecorder.EventKind.sync_to_server_pre, syncSetName, "serverPrefix", Sync.getEffectiveServerPrefix());
 			final long startTime = System.currentTimeMillis();
-			final String response_s = U.inputStreamUtf8ToString(call.execute().body().byteStream());
+			final String response_s = call.execute().body().string();
 			AppLog.d(TAG, "@@syncHistory server response string: " + response_s);
 			final Sync.SyncResponseJson<Sync_History.Content> response = App.getDefaultGson().fromJson(response_s, new TypeToken<Sync.SyncResponseJson<Sync_History.Content>>() {}.getType());
 			SyncRecorder.log(SyncRecorder.EventKind.sync_to_server_post_response_ok, syncSetName, "duration_ms", System.currentTimeMillis() - startTime);
@@ -423,7 +406,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 			SyncRecorder.log(SyncRecorder.EventKind.sync_to_server_got_success_data, syncSetName, "final_revno", final_revno, "append_delta_operations_size", append_delta.operations.size());
 
-			final Sync.ApplyAppendDeltaResult applyResult = History.getInstance().applyHistoryAppendDelta(final_revno, append_delta, entitiesBeforeSync, simpleToken);
+			final Sync.ApplyAppendDeltaResult applyResult = HistorySyncUtil.applyHistoryAppendDelta(History.INSTANCE, final_revno, append_delta, entitiesBeforeSync, simpleToken);
 
 			SyncRecorder.log(SyncRecorder.EventKind.apply_result, syncSetName, "apply_result", applyResult.name());
 
@@ -475,11 +458,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		final RequestBody requestBody = new FormBody.Builder()
 			.add("simpleToken", simpleToken)
 			.add("syncSetName", syncSetName)
-			.add("installation_id", U.getInstallationId())
+			.add("installation_id", InstallationUtil.getInstallationId())
 			.add("clientState", App.getDefaultGson().toJson(clientState))
 			.build();
 
-		final Call call = App.getLongTimeoutOkHttpClient().newCall(
+		final Call call = Connections.getLongTimeoutOkHttpClient().newCall(
 			new Request.Builder()
 				.url(serverPrefix + "sync/api/sync")
 				.post(requestBody)
@@ -487,12 +470,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		);
 
 
-		AppLog.d(TAG, "@@syncPins step 30: doing actual http request in this thread (" + Thread.currentThread().getId() + ":" + Thread.currentThread().toString() + ")");
+		AppLog.d(TAG, "@@syncPins step 30: doing actual http request in this thread (" + Thread.currentThread().getId() + ":" + Thread.currentThread() + ")");
 		try {
 			// arbritrary amount of time may pass on the next line. It is possible for the current data to be modified during this operation.
 			SyncRecorder.log(SyncRecorder.EventKind.sync_to_server_pre, syncSetName, "serverPrefix", Sync.getEffectiveServerPrefix());
 			final long startTime = System.currentTimeMillis();
-			final String response_s = U.inputStreamUtf8ToString(call.execute().body().byteStream());
+			final String response_s = call.execute().body().string();
 			AppLog.d(TAG, "@@syncPins server response string: " + response_s);
 			final Sync.SyncResponseJson<Sync_Pins.Content> response = App.getDefaultGson().fromJson(response_s, new TypeToken<Sync.SyncResponseJson<Sync_Pins.Content>>() {}.getType());
 			SyncRecorder.log(SyncRecorder.EventKind.sync_to_server_post_response_ok, syncSetName, "duration_ms", System.currentTimeMillis() - startTime);
@@ -547,7 +530,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			sr.stats.numIoExceptions++;
 		}
 	}
-	
+
 	void syncRp(final SyncResult sr) {
 		final String syncSetName = SyncShadow.SYNC_SET_RP;
 
@@ -570,11 +553,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		final RequestBody requestBody = new FormBody.Builder()
 			.add("simpleToken", simpleToken)
 			.add("syncSetName", syncSetName)
-			.add("installation_id", U.getInstallationId())
+			.add("installation_id", InstallationUtil.getInstallationId())
 			.add("clientState", App.getDefaultGson().toJson(clientState))
 			.build();
 
-		final Call call = App.getLongTimeoutOkHttpClient().newCall(
+		final Call call = Connections.getLongTimeoutOkHttpClient().newCall(
 			new Request.Builder()
 				.url(serverPrefix + "sync/api/sync")
 				.post(requestBody)
@@ -582,12 +565,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		);
 
 
-		AppLog.d(TAG, "@@syncRp step 30: doing actual http request in this thread (" + Thread.currentThread().getId() + ":" + Thread.currentThread().toString() + ")");
+		AppLog.d(TAG, "@@syncRp step 30: doing actual http request in this thread (" + Thread.currentThread().getId() + ":" + Thread.currentThread() + ")");
 		try {
 			// arbritrary amount of time may pass on the next line. It is possible for the current data to be modified during this operation.
 			SyncRecorder.log(SyncRecorder.EventKind.sync_to_server_pre, syncSetName, "serverPrefix", Sync.getEffectiveServerPrefix());
 			final long startTime = System.currentTimeMillis();
-			final String response_s = U.inputStreamUtf8ToString(call.execute().body().byteStream());
+			final String response_s = call.execute().body().string();
 			AppLog.d(TAG, "@@syncRp server response string: " + response_s);
 			final Sync.SyncResponseJson<Sync_Rp.Content> response = App.getDefaultGson().fromJson(response_s, new TypeToken<Sync.SyncResponseJson<Sync_Rp.Content>>() {}.getType());
 			SyncRecorder.log(SyncRecorder.EventKind.sync_to_server_post_response_ok, syncSetName, "duration_ms", System.currentTimeMillis() - startTime);

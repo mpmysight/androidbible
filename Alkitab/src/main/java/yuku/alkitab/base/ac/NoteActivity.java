@@ -1,10 +1,9 @@
 package yuku.alkitab.base.ac;
 
 import android.content.Intent;
+import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
 import android.text.Layout;
 import android.text.SpannableStringBuilder;
 import android.text.method.LinkMovementMethod;
@@ -15,23 +14,25 @@ import android.view.MotionEvent;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
-import com.afollestad.materialdialogs.MaterialDialog;
-import yuku.afw.V;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
+import java.util.Date;
+import kotlin.Unit;
 import yuku.afw.storage.Preferences;
 import yuku.alkitab.base.App;
 import yuku.alkitab.base.S;
-import yuku.alkitab.base.U;
 import yuku.alkitab.base.ac.base.BaseActivity;
 import yuku.alkitab.base.dialog.VersesDialog;
+import yuku.alkitab.base.settings.SettingsActivity;
 import yuku.alkitab.base.widget.CallbackSpan;
+import yuku.alkitab.base.widget.MaterialDialogJavaHelper;
 import yuku.alkitab.debug.R;
 import yuku.alkitab.model.Marker;
 import yuku.alkitab.util.IntArrayList;
 import yuku.alkitabconverter.util.DesktopVerseFinder;
 import yuku.alkitabconverter.util.DesktopVerseParser;
 import yuku.alkitabintegration.display.Launcher;
-
-import java.util.Date;
 
 public class NoteActivity extends BaseActivity {
 	//region static constructors
@@ -97,11 +98,11 @@ public class NoteActivity extends BaseActivity {
 
 		setTitle(reference);
 
-		viewFlipper = V.get(this, R.id.viewFlipper);
-		tCaptionReadOnly = V.get(this, R.id.tCaptionReadOnly);
-		tCaption = V.get(this, R.id.tCaption);
+		viewFlipper = findViewById(R.id.viewFlipper);
+		tCaptionReadOnly = findViewById(R.id.tCaptionReadOnly);
+		tCaption = findViewById(R.id.tCaption);
 
-		final Toolbar toolbar = V.get(this, R.id.toolbar);
+		final Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 		final ActionBar ab = getSupportActionBar();
 		assert ab != null;
@@ -135,7 +136,8 @@ public class NoteActivity extends BaseActivity {
 			tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, applied.fontSize2dp);
 			tv.setLineSpacing(0, applied.lineSpacingMult);
 
-			SettingsActivity.setPaddingBasedOnPreferences(tv);
+			final Rect padding = SettingsActivity.getPaddingBasedOnPreferences();
+			tv.setPadding(padding.left, padding.top, padding.right, padding.bottom);
 		}
 
 		getWindow().getDecorView().setKeepScreenOn(Preferences.getBoolean(getString(R.string.pref_keepScreenOn_key), getResources().getBoolean(R.bool.pref_keepScreenOn_default)));
@@ -150,19 +152,19 @@ public class NoteActivity extends BaseActivity {
 	final CallbackSpan.OnClickListener<String> verseClickListener = (widget, verse) -> {
 		justClickedLink = true;
 
+		// prevent "Can not perform this action after onSaveInstanceState"
+		if (isFinishing()) return;
+
 		final IntArrayList verseRanges = DesktopVerseParser.verseStringToAri(verse);
 		if (verseRanges == null || verseRanges.size() == 0) {
-			new MaterialDialog.Builder(widget.getContext())
-				.content(R.string.note_activity_cannot_parse_verse)
-				.positiveText(R.string.ok)
-				.show();
+			MaterialDialogJavaHelper.showOkDialog(widget.getContext(), getString(R.string.note_activity_cannot_parse_verse));
 			return;
 		}
 
 		final VersesDialog versesDialog = VersesDialog.newInstance(verseRanges);
 		versesDialog.setListener(new VersesDialog.VersesDialogListener() {
 			@Override
-			public void onVerseSelected(final VersesDialog dialog, final int ari) {
+			public void onVerseSelected(final int ari) {
 				startActivity(Launcher.openAppAtBibleLocationWithVerseSelected(ari));
 				versesDialog.dismiss();
 			}
@@ -227,7 +229,7 @@ public class NoteActivity extends BaseActivity {
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(final Menu menu) {
+	public boolean onCreateOptionsMenu(@NonNull final Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_note, menu);
 		return true;
 	}
@@ -247,39 +249,36 @@ public class NoteActivity extends BaseActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(final MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.menuEdit: {
-				setEditingMode(true);
+		int itemId = item.getItemId();
+		if (itemId == R.id.menuEdit) {
+			setEditingMode(true);
+			return true;
+		} else if (itemId == R.id.menuDelete) {// if it's indeed not exist, check if we have some text, if we do, prompt first
+			if (marker != null || tCaption.length() > 0) {
+				MaterialDialogJavaHelper.showOkDialog(
+					this,
+					getString(R.string.anda_yakin_mau_menghapus_catatan_ini),
+					getString(R.string.delete),
+					() -> {
+						if (marker != null) {
+							// really delete from db
+							S.getDb().deleteNonBookmarkMarkerById(marker._id);
+						} else {
+							// do nothing, because it's indeed not in the db, only in editor buffer
+						}
+
+						setResult(RESULT_OK);
+						realFinish();
+						return Unit.INSTANCE;
+					},
+					getString(R.string.cancel)
+				);
+			} else { // no existing marker and buffer is empty
+				realFinish(); // no need to setResult(RESULT_OK), because nothing is to be reloaded
 			}
 			return true;
-			case R.id.menuDelete: {
-				// if it's indeed not exist, check if we have some text, if we do, prompt first
-				if (marker != null || tCaption.length() > 0) {
-					new MaterialDialog.Builder(this)
-						.content(R.string.anda_yakin_mau_menghapus_catatan_ini)
-						.positiveText(R.string.delete)
-						.onPositive((dialog, which) -> {
-							if (marker != null) {
-								// really delete from db
-								S.getDb().deleteNonBookmarkMarkerById(marker._id);
-							} else {
-								// do nothing, because it's indeed not in the db, only in editor buffer
-							}
-
-							setResult(RESULT_OK);
-							realFinish();
-						})
-						.negativeText(R.string.cancel)
-						.show();
-				} else { // no existing marker and buffer is empty
-					realFinish(); // no need to setResult(RESULT_OK), because nothing is to be reloaded
-				}
-
-			}
-			return true;
-			case R.id.menuOk: {
-				ok_click();
-			}
+		} else if (itemId == R.id.menuOk) {
+			ok_click();
 			return true;
 		}
 
@@ -292,7 +291,7 @@ public class NoteActivity extends BaseActivity {
 			final Date now = new Date();
 
 			if (marker != null) { // update existing marker
-				if (U.equals(marker.caption, caption)) {
+				if (caption.equals(marker.caption)) {
 					// when there is no change, do nothing
 				} else {
 					if (caption.length() == 0) { // delete instead of update

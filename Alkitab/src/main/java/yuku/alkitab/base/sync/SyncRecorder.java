@@ -1,15 +1,17 @@
 package yuku.alkitab.base.sync;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import gnu.trove.map.hash.TIntObjectHashMap;
+import android.util.SparseArray;
+import androidx.annotation.Keep;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import java.util.HashMap;
 import yuku.afw.storage.Preferences;
 import yuku.alkitab.base.App;
 import yuku.alkitab.base.S;
 import yuku.alkitab.base.storage.Prefkey;
 import yuku.alkitab.base.util.Sqlitil;
-
-import java.util.HashMap;
+import yuku.alkitab.tracking.Analytics;
+import yuku.alkitab.tracking.Tracker;
 
 /**
  * Class that helps record sync events and status.
@@ -26,16 +28,16 @@ public class SyncRecorder {
 		login_attempt(10, INFO),
 		register_attempt(11, INFO),
 		login_failed(12, ERROR),
-		login_gcm_sending_failed(13, ERROR),
-		login_gcm_not_possessed_yet(14, NORMAL_RESULT),
+		login_fcm_sending_failed(13, ERROR),
+		login_fcm_not_possessed_yet(14, NORMAL_RESULT),
 		login_success_pre(15, OK),
 		login_success_post(16, OK),
 		register_failed(17, ERROR),
-		gcm_send_attempt(20, INFO),
-		gcm_send_success(21, INFO),
-		gcm_send_not_success(22, ERROR),
-		gcm_send_error_io(25, ERROR),
-		gcm_send_error_json(26, ERROR),
+		fcm_send_attempt(20, INFO),
+		fcm_send_success(21, INFO),
+		fcm_send_not_success(22, ERROR),
+		fcm_send_error_io(25, ERROR),
+		fcm_send_error_json(26, ERROR),
 		sync_forced(80, INFO),
 		sync_needed_notified(81, INFO),
 		sync_adapter_on_perform(82, INFO),
@@ -64,8 +66,8 @@ public class SyncRecorder {
 			this.backgroundColor = backgroundColor;
 		}
 
-		static TIntObjectHashMap<EventKind> codeIndex = new TIntObjectHashMap<>();
-		
+		static final SparseArray<EventKind> codeIndex = new SparseArray<>();
+
 		static {
 			for (final EventKind kind : values()) {
 				codeIndex.put(kind.code, kind);
@@ -96,13 +98,15 @@ public class SyncRecorder {
 		}
 
 		S.getDb().insertSyncLog(Sqlitil.nowDateTime(), kind, syncSetName, params);
-		App.trackEvent("sync", kind.name());
+		Tracker.trackEvent("sync", Analytics.Param.ITEM_NAME, kind.name());
 	}
 
+	@Keep
 	static class LastSyncInfoEntryJson {
 		public int successTime;
 	}
 
+	@Keep
 	static class LastSyncInfosJson extends HashMap<String, LastSyncInfoEntryJson> {
 	}
 

@@ -3,57 +3,62 @@ package yuku.alkitab.base.widget;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.widget.Button;
+import static android.view.MotionEvent.ACTION_CANCEL;
+import static android.view.MotionEvent.ACTION_DOWN;
+import static android.view.MotionEvent.ACTION_MOVE;
+import static android.view.MotionEvent.ACTION_UP;
+import androidx.appcompat.widget.AppCompatButton;
 
-import static android.view.MotionEvent.*;
+public class SplitHandleButton extends AppCompatButton {
+    public interface SplitHandleButtonListener {
+        void onHandleDragStart();
+        /**
+         * Only called when orientation is horizontal
+         */
+        void onHandleDragMoveX(float dxSinceLast, float dxSinceStart);
+        /**
+         * Only called when orientation is vertical
+         */
+        void onHandleDragMoveY(float dySinceLast, float dySinceStart);
+        void onHandleDragStop();
+    }
 
-public class SplitHandleButton extends Button {
-	public static final String TAG = SplitHandleButton.class.getSimpleName();
+    public enum Orientation {
+        vertical, // top bottom
+        horizontal, // left right
+    }
 
-	public interface SplitHandleButtonListener {
-		void onHandleDragStart();
-		/** Only called when orientation is horizontal */
-		void onHandleDragMoveX(float dxSinceLast, float dxSinceStart);
-		/** Only called when orientation is vertical */
-		void onHandleDragMoveY(float dySinceLast, float dySinceStart);
-		void onHandleDragStop();
-	}
+    protected Orientation orientation = Orientation.vertical; // should not ever be null
 
-	public enum Orientation {
-		vertical, // top bottom
-		horizontal, // left right
-	}
+    SplitHandleButtonListener listener;
 
-	protected Orientation orientation = Orientation.vertical; // should not ever be null
+    float down;
+    float move;
+    int[] loc = {0, 0};
 
-	SplitHandleButtonListener listener;
-	
-	float down;
-	float move;
-	int[] loc = {0, 0};
-	
-	public SplitHandleButton(Context context, AttributeSet attrs) {
-		super(context, attrs);
-	}
-	
-	public void setListener(SplitHandleButtonListener listener) {
-		this.listener = listener;
-	}
+    public SplitHandleButton(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
 
-	public Orientation getOrientation() {
-		return orientation;
-	}
+    public void setListener(SplitHandleButtonListener listener) {
+        this.listener = listener;
+    }
 
-	public void setOrientation(final Orientation orientation) {
-		this.orientation = orientation;
-	}
+    public Orientation getOrientation() {
+        return orientation;
+    }
 
-	@Override public boolean onTouchEvent(MotionEvent event) {
-		getLocationOnScreen(loc);
+    public void setOrientation(final Orientation orientation) {
+        this.orientation = orientation;
+    }
 
-		final int action = event.getActionMasked();
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        getLocationOnScreen(loc);
+
+        final int action = event.getActionMasked();
 		switch (action) {
-			case ACTION_DOWN:
+			case ACTION_DOWN -> {
 				if (orientation == Orientation.vertical) {
 					down = move = event.getY() + loc[1];
 				} else {
@@ -62,7 +67,8 @@ public class SplitHandleButton extends Button {
 				if (listener != null) listener.onHandleDragStart();
 				setPressed(true);
 				return true;
-			case ACTION_MOVE:
+			}
+			case ACTION_MOVE -> {
 				if (orientation == Orientation.vertical) {
 					final float y = event.getY() + loc[1];
 					if (listener != null) listener.onHandleDragMoveY(y - move, y - down);
@@ -73,12 +79,13 @@ public class SplitHandleButton extends Button {
 					move = x;
 				}
 				return true;
-			case ACTION_CANCEL:
-			case ACTION_UP:
+			}
+			case ACTION_CANCEL, ACTION_UP -> {
 				if (listener != null) listener.onHandleDragStop();
 				setPressed(false);
 				return true;
+			}
 		}
-		return false;
-	}
+        return false;
+    }
 }

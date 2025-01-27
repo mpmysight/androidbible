@@ -1,8 +1,6 @@
 package yuku.alkitab.base.model;
 
-import android.util.Log;
 import yuku.alkitab.base.S;
-import yuku.alkitab.base.ac.VersionsActivity;
 import yuku.alkitab.base.storage.YesReaderFactory;
 import yuku.alkitab.base.util.AppLog;
 import yuku.alkitab.io.BibleReader;
@@ -17,6 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * If the version is downloaded from a definition in the preset list, the {@link #preset_name} will be non-null.
  */
 public class MVersionDb extends MVersion {
+	static final String TAG = MVersionDb.class.getSimpleName();
+
 	public static final int DEFAULT_ORDERING_START = 100;
 
 	public String filename;
@@ -38,7 +38,7 @@ public class MVersionDb extends MVersion {
 	/**
 	 * The version id for MVersionDb can be "preset/" followed by preset_name,
 	 * or "file/" followed by absolute path name of the yes file.
-	 *
+	 * <p>
 	 * Therefore, the id starting with "preset/" does not always indicate MVersionPreset,
 	 * since it probably indicate MVersionDb as well.
 	 */
@@ -75,7 +75,7 @@ public class MVersionDb extends MVersion {
 
 			final BibleReader reader = YesReaderFactory.createYesReader(filename);
 			if (reader == null) {
-				AppLog.e(VersionsActivity.TAG, "YesReaderFactory failed to open the yes file");
+				AppLog.e(TAG, "YesReaderFactory failed to open the yes file");
 				return null;
 			}
 
@@ -103,7 +103,8 @@ public class MVersionDb extends MVersion {
 		return this.cache_active;
 	}
 
-	@Override public boolean hasDataFile() {
+	@Override
+	public boolean hasDataFile() {
 		final File f = new File(filename);
 		return f.exists() && f.canRead();
 	}

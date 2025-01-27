@@ -3,6 +3,7 @@
 	<string name="pref_keepScreenOn_key" translatable="false">nyalakanTerusLayar</string>
 	<string name="pref_textPadding_key" translatable="false">textPadding</string>
 	<string name="pref_bottomToolbarOnText_key" translatable="false">bottomToolbarOnText</string>
+	<string name="pref_verseNumberIsShown_key" translatable="false">verseNumberIsShown</string>
 
 	<string name="pref_volumeButtonNavigation_key" translatable="false">tombolVolumeBuatPindah</string>
 
@@ -26,7 +27,6 @@
 	<string name="pref_copyWithShareUrl_key" translatable="false">copyWithShareUrl</string>
 	<string name="pref_autoDictionaryAnalyze_key" translatable="false">autoDictionaryAnalyze</string>
 	<string name="pref_tapToEditNote_key" translatable="false">tapToEditNote</string>
-	<string name="pref_showHiddenVersion_key" translatable="false">showHiddenVersion</string>
 	<string name="pref_syncAccountName_key" translatable="false">syncAccountName</string>
 	<string name="pref_sync_key" translatable="false">sync</string>
 	<string name="pref_syncLogout_key" translatable="false">syncLogout</string>
@@ -34,4 +34,7 @@
 	<string name="pref_selectedVerseBgColor_key" translatable="false">selectedVerseBgColor</string>
 
 	<string name="pref_forceFontScale_key" translatable="false">forceFontScale</string>
+
+	<string name="pref_data_transfer_export_key" translatable="false">data_transfer_export</string>
+	<string name="pref_data_transfer_import_key" translatable="false">data_transfer_import</string>
 </resources>

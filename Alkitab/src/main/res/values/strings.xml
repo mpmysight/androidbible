@@ -12,15 +12,13 @@
     <string name="ekspor_berhasil_file_yang_dihasilkan_file">Backup was successful.\n\nResults are in file: %s</string>
     <string name="impor_berhasil_angka_diproses">Restore was successful. In total %1$d bookmarks, notes, and/or highlights, and also %2$d labels were processed.</string>
     <string name="terjadi_kesalahan_ketika_mengekspor_pesan">There were error(s) when creating backup: %s</string>
-    <string name="ekspor_pembatas_buku_dan_catatan_tanya">Create backup of bookmarks, notes, and highlights to SD Card or USB Storage? Existing backups will be overwritten.</string>
     <string name="terjadi_kesalahan_ketika_mengimpor_pesan">There were error(s) when restoring: %s</string>
     <string name="apakah_anda_mau_menumpuk_pembatas_buku_dan_catatan_tanya">Overwrite the bookmarks, notes, and highlights you currently have?</string>
     <string name="file_tidak_bisa_dibaca_file">The file does not exist or could not be read: %s</string>
     <string name="impor_dari_sd_card">Restore</string>
     <string name="ekspor_ke_sd_card">Backup</string>
     <string name="menuBantuan">Help</string>
-    <string name="beri_saran_title">Suggest</string>
-    <string name="menuDevotion">Devotion</string>
+	<string name="menuDevotion">Devotion</string>
     <string name="search">Search</string>
     <string name="activity_title_markers">Markers</string>
     <string name="menu_markers">Markers</string>
@@ -43,11 +41,11 @@
     <string name="pasal_sebelumangka">Chapter</string>
     <string name="jump_to_prompt"><b>JUMP TO</b> — Example: ^1</string>
     <string name="belum_ada_pembatas_buku">No bookmarks yet.\nSelect a verse to add a bookmark.</string>
-    <string name="judul_titikdua">TITLE</string>
+    <string name="judul_titikdua">Title</string>
     <string name="devotion_downloader_downloading_title">Downloading ^1</string>
     <string name="devotion_downloader_downloading_date">dated ^1</string>
     <string name="devotion_downloader_error_date">Error in date ^1: ^2</string>
-    <string name="devotion_downloader_success_date">Downloadeded date ^1</string>
+    <string name="devotion_downloader_success_date">Downloaded date ^1</string>
     <string name="belum_tersedia_mungkin_tanggal_yang_diminta_belum_disiapkan">Not yet available. Probably the requested date\'s material is not prepared yet, or there are some errors in recognizing the data source. Please try again later.</string>
     <string name="belum_tersedia_menunggu_pengambilan_data_lewat_internet_pastikan_ada">Not yet available. Fetching from the Internet…\n\n(Ensure there is Internet connection to fetch the devotion materials.)</string>
     <string name="hari_sabtu">Sat</string>
@@ -118,10 +116,8 @@
     <string name="ed_title_title">Title</string>
     <string name="ed_stored_in_file">File location</string>
     <string name="ed_default_filename_file">Preset name</string>
-    <string name="ed_download_url_url">Download URL</string>
-    <string name="ed_version_details">Version details</string>
+	<string name="ed_version_details">Version details</string>
     <string name="ed_choose_pdb_or_yes_file">Choose a .pdb or .yes file</string>
-    <string name="ed_no_external_storage">No SD Card or USB storage found.</string>
     <string name="ed_invalid_file_selected">Invalid file selected.</string>
     <string name="ed_file_file_sudah_ada_dalam_daftar_versi">File %s is already on the list.</string>
     <string name="ed_error_encountered">Error encountered</string>
@@ -176,15 +172,21 @@
     <string name="bl_file_not_found_filename">File not found: %s</string>
     <string name="bl_send_backup_confirmation">Create and send backup of bookmarks, notes, and highlights? You can, for example, send the attached file by email to a new device, or just for archiving purposes.</string>
 	<string name="bl_sync_suggest">Protect your markers with sync</string>
-    <string name="labels_titikdua">LABELS</string>
+	<string name="bl_selection_copy">Copy</string>
+	<string name="bl_selection_edit">Edit</string>
+	<string name="bl_selection_delete">Delete</string>
+	<string name="bl_selection_one_selected">1 selected</string>
+	<string name="bl_selection_many_selected">^1 selected</string>
+	<string name="bl_copied_toast">The selected items have been copied.</string>
+
+	<string name="labels_titikdua">LABELS</string>
     <string name="tambah_titiktiga">Add…</string>
     <string name="nama_label_titikdua">Label name:</string>
     <string name="change_label_color">Change label color</string>
     <string name="rename_label">Rename label</string>
     <string name="delete_label">Delete label</string>
     <string name="please_wait_titik3">Please wait…</string>
-    <string name="juga_hapus_file_datanya_file">Also delete the data file \'%s\'?</string>
-    <string name="get_more_fonts">Download more fonts…</string>
+	<string name="get_more_fonts">Download more fonts…</string>
     <string name="intent_filter_import_from_backup">Import from backup</string>
     <string name="redownload">Redownload</string>
     <string name="read_faq_before_suggest">Please read the above FAQ before sending a suggestion. Continue with sending a suggestion?</string>
@@ -216,6 +218,7 @@
     <string name="no_url_for_facebook">This cannot be shared to Facebook.</string>
     <string name="storage_permission_rationale">We need to access the storage to store shared media such as Bible versions and fonts.</string>
 	<string name="goto_button_history_tip">Tip: Next time, long-press this button to access your recently-opened verses.</string>
+	<string name="backforwardlist_clear">Clear all</string>
 
 	<!-- Goto tabs -->
     <string name="goto_tab_dialer_label">Dialer</string>
@@ -255,6 +258,8 @@
     <string name="sn_private_song_book_dialog_desc">Download a private (hidden) song book</string>
     <string name="sn_private_song_book_name_hint">Song book name</string>
 	<string name="sn_play_in_loop">Do you want to play on a loop until stopped?</string>
+	<string name="sn_error_rendering_lyrics">Error in rendering lyrics. Please tap the menu button and select \"Update song book\".</string>
+    <string name="sn_audio_disclaimer_message">Please note that all audio provided in this app does not necessarily originate from the publisher of the song or the song book.</string>
 
     <!-- Content descriptions, for blind users -->
     <string name="desc_previous_day">Previous day</string>
@@ -282,6 +287,8 @@
     <string name="desc_verse_attribute_progress_mark">%s is currently here.</string>
     <string name="desc_progress_mark_list">List of pins</string>
     <string name="desc_backspace">Backspace</string>
+    <string name="desc_bfl_back">Tap to go back, long-press to see visited locations</string>
+    <string name="desc_bfl_forward">Tap to go forward, long-press to see visited locations</string>
 
     <string name="intent_filter_open_yes_file">Open YES file</string>
     <string name="intent_filter_open_pdb_file">Open PDB file</string>
@@ -330,18 +337,14 @@
     <string name="recentverses_yesterday_time">Yesterday, %s</string>
     <string name="recentverses_button_hint">(Long-press for recent verses)</string>
 
-    <string name="dr_reminder">Reminder</string>
-    <string name="dr_error_contact_reminder">Error while contacting Reminder app.</string>
-    <string name="dr_timepicker_set">Set</string>
-    <string name="dr_timepicker_off">Turn off</string>
-
-    <string name="dv_activity_title">Daily Verse Widget</string>
+	<string name="dv_activity_title">Daily Verse Widget</string>
     <string name="dv_option_transparent_background">Transparent background</string>
     <string name="dv_option_dark_text">Dark text</string>
     <string name="dv_option_text_size">Text size</string>
+    <string name="dv_option_hide_app_icon">Hide app icon</string>
 
 	<!-- Reading plan -->
-    <string name="rp_activity_title">Reading Plan</string>
+    <string name="rp_activity_title" translatable="false">Reading Plan</string>
     <string name="rp_menuReadingPlan">Reading plan</string>
     <string name="rp_commentActual">Finished: %s%%</string>
     <string name="rp_commentTarget">Target: %s%%</string>
@@ -363,7 +366,7 @@
     <string name="rp_navigationPreviousDay">Previous day</string>
     <string name="rp_navigationGoToDate">Go to date</string>
     <string name="rp_navigationNextDay">Next day</string>
-    <string name="rp_menuDownload">Download</string>
+    <string name="rp_menuDownload">Download a reading plan</string>
     <string name="rp_menuCatchMeUp">Resync dates</string>
     <string name="rp_menuRestart">Restart</string>
     <string name="rp_menuDelete">Delete</string>
@@ -383,7 +386,6 @@
 	<string name="rp_download_already_have">You already have this reading plan.</string>
     <string name="rp_mark_as_read_up_to">Mark as read up to here?</string>
 
-	<string name="version_download_need_fonts">"The version downloaded might need to be displayed with certain fonts. Go to the 'Display' menu and select a font. Greek needs Ubuntu font. Burmese needs Parabaik, ParabaikSans, or Myanmar3. Tamil needs Akshar. Telugu needs Suranna."</string>
     <string name="version_download_corrupted_file">Downloaded file seems to be corrupt.</string>
     <string name="version_download_saving_io_error">I/O error when saving downloaded version</string>
     <string name="version_download_network_error">Network error when downloading ^1.</string>
@@ -393,6 +395,7 @@
     <string name="highlight_custom_color">Other colors</string>
     <string name="menu_compare">Compare</string>
     <string name="song_player_error_description">An error was encountered when playing this song: %1$d, %2$d.</string>
+    <string name="song_player_error_message">An error was encountered when playing this song: ^1.</string>
 
     <string name="search_in_version_short_name_placeholder">Find in %s</string>
     <string name="search_syntax_tips"><i>Search tips:</i>\n\n<b>+word</b> for that exact word\n<b>[q]city of david[q]</b> for that exact phrase</string>
@@ -505,7 +508,7 @@
 	<string name="sync_login_form_error_required">Please fill this in.</string>
 	<string name="sync_login_form_password_hint">Password</string>
 	<string name="sync_login_form_new_password_hint">New password</string>
-	<string name="sync_login_form_intro_text">Sync protects your markers and other data.\n<a href='http://www.bibleforandroid.com/guide/sync'>More information</a></string>
+	<string name="sync_login_form_intro_text">Sync protects your markers and other data.\n<a href='https://alkitab.app/guide/sync'>More information</a></string>
 	<string name="sync_login_form_email_hint">Email</string>
 	<string name="sync_login_form_forgot_button">Forgot?</string>
 	<string name="sync_login_form_optional_header">Optional</string>
@@ -513,7 +516,7 @@
 	<string name="sync_login_form_city">City</string>
 	<string name="sync_login_form_register_button">Register</string>
 	<string name="sync_login_form_login_button">Login</string>
-	<string name="sync_login_form_privacy_text">By pressing any of the buttons below, you agree to the <a href='http://www.bibleforandroid.com/privacy_policy'>privacy policy</a>.</string>
+	<string name="sync_login_form_privacy_text">By pressing any of the buttons below, you agree to the <a href='https://alkitab.app/privacy_policy'>privacy policy</a>.</string>
 	<string name="sync_login_form_error_email_pattern">Invalid email address.</string>
 	<string name="sync_login_form_passwords_do_not_match">Please type the same password on the confirmation dialog.</string>
 	<string name="sync_login_dialog_confirm_password_hint">Confirm password</string>
@@ -526,49 +529,25 @@
 	<string name="pref_bottomToolbarOnText_title">Bottom verse navigation</string>
 	<string name="pref_bottomToolbarOnText_summary">Put verse navigation toolbar at the bottom on the Bible screen</string>
 
-	<!-- devotion reminder -->
-	<string name="dr_app_name">Reminder</string>
-	<string name="dr_notification_title">Daily devotion</string>
-	<string name="dr_notification_text">Read today\'s devotion now.</string>
-	<string name="dr_off">Off</string>
-	<string name="dr_alarm">Alarm</string>
-	<string name="dr_sound">Sound</string>
-	<string name="dr_vibrate">Vibrate</string>
-	<string name="dr_pref_notification_message">Reminder message</string>
-	<string name="dr_default_sound">Default sound</string>
+	<string name="pref_verseNumberIsShown_title">Show verse numbers</string>
+	<string name="pref_verseNumberIsShown_summary">Show the verse number at the beginning of each verse</string>
 
 	<!-- about -->
 	<string name="about_text_desc" tools:ignore="AndroidLintStringFormatInvalid">100% free Bible app, licensed under Apache License 2.0</string>
 	<string name="about_translators">Translators</string>
 	<string name="about_user_guide">User\'s Guide</string>
-	<string name="about_beta_feedback">Beta Version Feedback</string>
-	<string name="about_enable_beta">Try Beta Version</string>
-	<string name="about_enable_beta_confirmation">Sign in to Google and tap the BECOME A TESTER button to try the Beta version with newer features and enhancements!</string>
 	<string name="about_version_name">version %s</string>
 	<string name="about_material_sources">Material Sources</string>
 	<string name="about_credits">Credits</string>
-	<string name="about_announcements">Announcements</string>
-	<string name="about_announcements_none">Announcements (0)</string>
-	<string name="about_announcements_number">Announcements (%s)</string>
-	<string name="about_announcement_load_failed">Failed to load announcements.</string>
     <string name="about_official_website">Official Website</string>
     <string name="about_project_page">Project Page</string>
 
 	<!-- marker and label migration -->
-	<string name="marker_migrate_introduction">We detected a backup file from the old v3 Yuku Quick Bible that contains bookmarks, notes, highlights, and labels.\n\nDo you want to import them, so you can access them from this app?</string>
-	<string name="marker_migrate_no_more">Don\'t ask again</string>
-	<string name="marker_migrate_later">Not now</string>
-	<string name="marker_migrate_title">Import old markers</string>
-	<string name="marker_migrate_file_chooser_title">Select v3 backup file</string>
-	<string name="marker_migrate_no_more_confirmation">Are you sure you don\'t need to import the old data?</string>
-	<string name="marker_migrate_error_opening_backup_file">Could not access that backup file.</string>
-	<string name="marker_migrate_import_from_newest">Yes, import from the newest (recommended)</string>
-	<string name="marker_migrate_import_from_other">Other backup</string>
-	<string name="marker_migrate_filename_dated">%1$s dated %2$s</string>
 
-	<!-- Announcements -->
-	<string name="announce_notif_title">%s Announcements</string>
-	<string name="announce_notif_number_new_announcements">%s new announcements</string>
+	<!-- Data transfer -->
+	<string name="data_transfer_title">Data transfer</string>
+	<string name="data_transfer_export_title">Export data</string>
+	<string name="data_transfer_import_title">Import data</string>
 
 	<!-- Dictionary -->
 	<string name="menuDictionary">Dictionary</string>
@@ -587,6 +566,8 @@
     <!-- Maps -->
     <string name="maps_could_not_open">Could not open the Bible Maps app.</string>
 
-    <!-- File chooser -->
-    <string name="filechooser_parent_folder">Parent folder</string>
+	<!-- Notification channels -->
+	<string name="notification_channel_download_mapper_name">Downloads</string>
+	<string name="notification_channel_devotion_downloader_name">Devotion downloads</string>
+
 </resources>

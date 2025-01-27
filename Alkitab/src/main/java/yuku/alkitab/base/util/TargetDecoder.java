@@ -1,13 +1,12 @@
 package yuku.alkitab.base.util;
 
-import android.util.Log;
 import yuku.alkitab.util.Ari;
 import yuku.alkitab.util.IntArrayList;
 
 import java.util.regex.Pattern;
 
 public class TargetDecoder {
-	public static final String TAG = TargetDecoder.class.getSimpleName();
+	static final String TAG = TargetDecoder.class.getSimpleName();
 
 	static final Pattern rangeSplitter = Pattern.compile(",");
 	static final Pattern startEndSplitter = Pattern.compile("-");

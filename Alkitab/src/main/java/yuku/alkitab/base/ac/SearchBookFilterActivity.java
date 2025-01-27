@@ -5,10 +5,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.InsetDrawable;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.SparseBooleanArray;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -16,11 +12,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import yuku.afw.App;
-import yuku.afw.V;
 import yuku.afw.storage.Preferences;
-import yuku.alkitab.base.U;
 import yuku.alkitab.base.ac.base.BaseActivity;
+import yuku.alkitab.base.util.BookColorUtil;
 import yuku.alkitab.base.util.BookNameSorter;
 import yuku.alkitab.debug.R;
 import yuku.alkitab.model.Book;
@@ -95,7 +94,7 @@ public class SearchBookFilterActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_search_book_filter);
 
-		final Toolbar toolbar = V.get(this, R.id.toolbar);
+		final Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 		final ActionBar ab = getSupportActionBar();
 		assert ab != null;
@@ -107,15 +106,15 @@ public class SearchBookFilterActivity extends BaseActivity {
 		//noinspection SuspiciousSystemArraycopy
 		System.arraycopy(booksParcelable, 0, books, 0, booksParcelable.length);
 
-		final RecyclerView gridBook = V.get(this, R.id.gridBook);
+		final RecyclerView gridBook = findViewById(R.id.gridBook);
 		adapter = new BookAdapter(books);
 		final GridLayoutManager manager = new GridLayoutManager(getApplication(), 6);
 		manager.setSpanSizeLookup(adapter.spanSizeLookup);
 		gridBook.setLayoutManager(manager);
 		gridBook.setAdapter(adapter);
 
-		V.get(this, R.id.bOk).setOnClickListener(bOk_click);
-		V.get(this, R.id.bCancel).setOnClickListener(bCancel_click);
+		findViewById(R.id.bOk).setOnClickListener(bOk_click);
+		findViewById(R.id.bCancel).setOnClickListener(bCancel_click);
 	}
 
 	final View.OnClickListener bOk_click = v -> {
@@ -184,7 +183,7 @@ public class SearchBookFilterActivity extends BaseActivity {
 		public void onBindViewHolder(final VH holder, final int position) {
 			if (holder.viewType == TYPE_CATEGORIES) {
 				for (int[] bookCategoryMapping : bookCategoryMappings) {
-					final CheckBox checkBox = V.get(holder.itemView, bookCategoryMapping[0]);
+					final CheckBox checkBox = holder.itemView.findViewById(bookCategoryMapping[0]);
 					checkBox.setOnCheckedChangeListener(null);
 
 					{ // show current state
@@ -200,7 +199,7 @@ public class SearchBookFilterActivity extends BaseActivity {
 						checkBox.setChecked(all_on);
 					}
 
-					{ // then, put a change listener
+					{ // then, put a change selectedVersesListener
 						checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
 							// all on?
 							boolean all_on = true;
@@ -227,12 +226,12 @@ public class SearchBookFilterActivity extends BaseActivity {
 
 				if (selectedBookIds.get(book.bookId)) {
 					lName.setTextColor(0xffffffff);
-					final ColorDrawable color = new ColorDrawable(U.getBackgroundColorByBookId(book.bookId));
+					final ColorDrawable color = new ColorDrawable(BookColorUtil.getBackground(book.bookId));
 					final InsetDrawable bg = new InsetDrawable(color, getResources().getDimensionPixelOffset(R.dimen.goto_grid_cell_inset));
 					//noinspection deprecation
 					lName.setBackgroundDrawable(bg);
 				} else {
-					lName.setTextColor(U.getForegroundColorOnDarkBackgroundByBookId(book.bookId));
+					lName.setTextColor(BookColorUtil.getForegroundOnDark(book.bookId));
 					lName.setBackgroundColor(0x0);
 				}
 
